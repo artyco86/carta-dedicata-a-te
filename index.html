@@ -2,149 +2,313 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Controllo Carta Dedicata a te</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Carta Dedicata a te</title>
 <style>
-  body { font-family: system-ui, sans-serif; margin: 0; background: #f4f6f8; color: #16202a; }
-  header { background: #0b5d3b; color: white; padding: 18px; text-align: center; }
-  main { padding: 16px; max-width: 520px; margin: auto; }
-  button { width: 100%; padding: 16px; border: 0; border-radius: 12px; font-size: 17px; font-weight: 700; }
-  .scan { background: #0b5d3b; color: white; }
-  .manual { background: white; border: 2px solid #0b5d3b; color: #0b5d3b; margin-top: 10px; }
-  .card { background: white; border-radius: 14px; padding: 16px; margin-top: 16px; box-shadow: 0 2px 10px #0001; }
-  .verde { border-left: 8px solid #1a8f4a; }
-  .rosso { border-left: 8px solid #d0342c; }
-  .giallo { border-left: 8px solid #e0a800; }
-  .badge { font-weight: 800; font-size: 18px; }
-  input { width: 100%; padding: 12px; font-size: 16px; border: 1px solid #ccd4dc; border-radius: 10px; box-sizing: border-box; }
-  small { color: #5a6875; }
+  * { box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+    margin: 0;
+    background: #f2f5f7;
+    color: #16202a;
+    padding-bottom: 40px;
+  }
+
+  header {
+    background: #0b5d3b;
+    color: white;
+    padding: 22px 16px;
+    text-align: center;
+  }
+
+  header h1 {
+    margin: 0 0 6px;
+    font-size: 24px;
+  }
+
+  header p {
+    margin: 0;
+    opacity: .9;
+    font-size: 14px;
+  }
+
+  main {
+    padding: 16px;
+    max-width: 560px;
+    margin: auto;
+  }
+
+  .card {
+    background: white;
+    border-radius: 16px;
+    padding: 18px;
+    margin-top: 16px;
+    box-shadow: 0 3px 14px rgba(0,0,0,.08);
+  }
+
+  button {
+    width: 100%;
+    padding: 16px;
+    border: 0;
+    border-radius: 14px;
+    font-size: 17px;
+    font-weight: 700;
+  }
+
+  .scan {
+    background: #0b5d3b;
+    color: white;
+  }
+
+  .manual {
+    background: white;
+    border: 2px solid #0b5d3b;
+    color: #0b5d3b;
+    margin-top: 10px;
+  }
+
+  input {
+    width: 100%;
+    padding: 14px;
+    font-size: 17px;
+    border: 1px solid #ccd4dc;
+    border-radius: 12px;
+    margin-top: 8px;
+  }
+
+  #reader {
+    margin-top: 16px;
+    border-radius: 16px;
+    overflow: hidden;
+    background: black;
+    min-height: 260px;
+  }
+
+  .verde { border-left: 10px solid #1a8f4a; }
+  .rosso { border-left: 10px solid #d0342c; }
+  .giallo { border-left: 10px solid #e0a800; }
+
+  .badge {
+    font-size: 19px;
+    font-weight: 800;
+    margin-bottom: 8px;
+  }
+
+  .verde .badge { color: #1a8f4a; }
+  .rosso .badge { color: #d0342c; }
+  .giallo .badge { color: #b98400; }
+
+  h3 { margin: 6px 0; }
+  p { margin: 6px 0; }
+
+  small {
+    color: #5a6875;
+    display: block;
+    margin-top: 10px;
+  }
 </style>
 </head>
+
 <body>
 
 <header>
   <h1>Carta Dedicata a te</h1>
-  <p>Scansiona il prodotto e verifica se è probabilmente ammesso</p>
+  <p>Scansiona un prodotto e verifica se è probabilmente ammesso</p>
 </header>
 
 <main>
-  <button class="scan" onclick="startScan()">📷 Scansiona codice a barre</button>
+
+  <button class="scan" onclick="avviaScanner()">
+    📷 Avvia scanner
+  </button>
+
+  <div id="reader"></div>
 
   <div class="card">
-    <label><b>Inserisci codice a barre manualmente</b></label>
-    <input id="barcode" inputmode="numeric" placeholder="Es. 8000500310427">
-    <button class="manual" onclick="checkManual()">Verifica prodotto</button>
+    <label><b>Codice a barre manuale</b></label>
+    <input
+      id="barcode"
+      inputmode="numeric"
+      placeholder="Inserisci il codice EAN"
+    >
+    <button class="manual" onclick="controllaManuale()">
+      Verifica prodotto
+    </button>
   </div>
 
-  <div id="result"></div>
+  <div id="risultato"></div>
 
   <div class="card">
     <small>
-      L’esito è indicativo: la Carta “Dedicata a te” è riservata ai generi alimentari di prima necessità.
+      Esito indicativo: la Carta “Dedicata a te” copre generi alimentari di prima necessità.
       Sono esclusi alcolici, detersivi, cosmetici, prodotti per l’igiene e articoli non alimentari.
       La conferma definitiva avviene in cassa.
     </small>
   </div>
+
 </main>
 
-<script src="https://unpkg.com/@zxing/library@0.21.3/umd/index.min.js"></script>
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+
 <script>
-const GREEN = [
-  "pane","pasta","riso","cereali","farina","latte","formaggio","yogurt","uova",
-  "frutta","verdura","ortaggi","legumi","carne","pollo","manzo","maiale","pesce",
-  "tonno","olio","burro","acqua","caffè","te","tè","camomilla","zucchero","miele",
-  "cioccolato","cacao","biscotti","conserve","pomodoro","surgelati","baby","infanzia"
+let scanner = null;
+
+const VERDI = [
+  "farfalle","pasta","penne","spaghetti","rigatoni","fusilli","maccheroni",
+  "tagliatelle","lasagne","gnocchi","riso","cereali","farina","pane",
+  "pane in cassetta","fette biscottate","crackers","grissini","biscotti",
+  "frollini","merendine","torte","latte","yogurt","formaggio","parmigiano",
+  "grana","mozzarella","ricotta","burro","margarina","uova","frutta","verdura",
+  "ortaggi","insalata","patate","carota","pomodoro","passata","polpa","pelati",
+  "conserve","tonno","sgombro","sgombri","sardine","acciughe","pesce","carne",
+  "pollo","tacchino","manzo","maiale","prosciutto","salame","mortadella",
+  "salumi","legumi","fagioli","lenticchie","ceci","piselli","olio","aceto",
+  "sale","zucchero","miele","cacao","cioccolato","acqua","caffè","caffe",
+  "te","tè","camomilla","infusi","lievito","farro","orzo","avena","mais",
+  "polenta","cous cous","couscous","pizza","surgelati","baby","latte infantile",
+  "omogeneizzati","pappe","dop","igp"
 ];
 
-const RED = [
-  "birra","vino","vodka","whisky","rum","liquore","alcol","detersivo","detersivi",
-  "candeggina","ammorbidente","sapone","shampoo","dentifricio","spazzolino",
-  "cosmetico","cosmetici","carta igienica","fazzoletti","pannolini","sigarette",
-  "carburante","benzina","gas","riviste","giornali","animali","crocchette cane"
+const ROSSE = [
+  "birra","vino","vino rosso","vino bianco","prosecco","champagne","spumante",
+  "vodka","whisky","whiskey","rum","gin","tequila","liquore","amaro","grappa",
+  "sambuca","alcol","alcolici","detersivo","detersivi","candeggina",
+  "ammorbidente","lavavetri","saponetta","sapone","shampoo","bagnoschiuma",
+  "dentifricio","spazzolino","collutorio","deodorante","crema corpo",
+  "cosmetico","cosmetici","carta igienica","fazzoletti","pannolini",
+  "salviette","sigarette","benzina","gas","riviste","giornali",
+  "crocchette cane","cibo cane","cibo gatto"
 ];
 
-function verdict(text) {
-  const t = text.toLowerCase();
+function valuta(testo) {
+  const t = (testo || "").toLowerCase();
 
-  if (RED.some(word => t.includes(word))) {
-    return { status: "rosso", label: "Probabilmente NON acquistabile", reason: "Categoria esclusa dalla Carta Dedicata a te." };
+  if (ROSSE.some(parola => t.includes(parola))) {
+    return {
+      stato: "rosso",
+      titolo: "Probabilmente NON acquistabile",
+      motivo: "La categoria risulta esclusa dalla Carta Dedicata a te."
+    };
   }
 
-  if (GREEN.some(word => t.includes(word))) {
-    return { status: "verde", label: "Probabilmente acquistabile", reason: "Rientra nelle categorie alimentari di prima necessità." };
+  if (VERDI.some(parola => t.includes(parola))) {
+    return {
+      stato: "verde",
+      titolo: "Probabilmente acquistabile",
+      motivo: "Rientra nei generi alimentari di prima necessità."
+    };
   }
 
   return {
-    status: "giallo",
-    label: "Da verificare in cassa",
-    reason: "Il prodotto è alimentare, ma la categoria non è stata riconosciuta con certezza."
+    stato: "verde",
+    titolo: "Probabilmente acquistabile",
+    motivo: "Prodotto alimentare rilevato; verifica eventuali limiti specifici in cassa."
   };
 }
 
-function showResult(product, code) {
-  const name = product?.product_name || product?.product_name_it || "Prodotto non identificato";
-  const categories = product?.categories || product?.categories_tags?.join(", ") || "";
-  const text = name + " " + categories;
-  const v = verdict(text);
+function mostraRisultato(prodotto, codice) {
+  const nome =
+    prodotto?.product_name_it ||
+    prodotto?.product_name ||
+    "Prodotto non identificato";
 
-  document.getElementById("result").innerHTML = `
-    <div class="card ${v.status}">
-      <div class="badge">${v.label}</div>
-      <h3>${name}</h3>
-      <p><b>Codice:</b> ${code}</p>
-      <p><b>Categoria rilevata:</b> ${categories || "non disponibile"}</p>
-      <p>${v.reason}</p>
+  const categorie =
+    prodotto?.categories ||
+    (prodotto?.categories_tags || []).join(", ") ||
+    "";
+
+  const esito = valuta(nome + " " + categorie);
+
+  document.getElementById("risultato").innerHTML = `
+    <div class="card ${esito.stato}">
+      <div class="badge">${esito.titolo}</div>
+      <h3>${nome}</h3>
+      <p><b>Codice:</b> ${codice}</p>
+      <p><b>Categoria:</b> ${categorie || "non disponibile"}</p>
+      <p>${esito.motivo}</p>
     </div>`;
 }
 
-async function checkBarcode(code) {
-  if (!code) return;
+async function controllaCodice(codice) {
+  codice = String(codice).trim();
 
-  document.getElementById("result").innerHTML =
-    `<div class="card giallo"><div class="badge">Ricerca in corso…</div></div>`;
+  if (!codice) return;
+
+  document.getElementById("risultato").innerHTML = `
+    <div class="card giallo">
+      <div class="badge">Ricerca in corso…</div>
+    </div>`;
 
   try {
-    const response = await fetch(
-      `https://world.openfoodfacts.org/api/v2/product/${code}.json?fields=product_name,product_name_it,categories,categories_tags`
+    const risposta = await fetch(
+      `https://world.openfoodfacts.org/api/v2/product/${codice}.json?fields=product_name,product_name_it,categories,categories_tags`
     );
-    const data = await response.json();
 
-    if (data.status === 1) {
-      showResult(data.product, code);
+    const dati = await risposta.json();
+
+    if (dati.status === 1) {
+      mostraRisultato(dati.product, codice);
     } else {
-      document.getElementById("result").innerHTML =
-        `<div class="card giallo">
+      document.getElementById("risultato").innerHTML = `
+        <div class="card giallo">
           <div class="badge">Prodotto non trovato</div>
-          <p>Il codice ${code} non è presente nel database Open Food Facts.</p>
-          <p>Prova a inserire il nome del prodotto manualmente o verifica in cassa.</p>
+          <p>Il codice <b>${codice}</b> non è presente nel database Open Food Facts.</p>
+          <p>Verifica il prodotto direttamente in cassa.</p>
         </div>`;
     }
-  } catch (error) {
-    document.getElementById("result").innerHTML =
-      `<div class="card rosso"><div class="badge">Errore di rete</div><p>Controlla la connessione Internet e riprova.</p></div>`;
+
+  } catch (errore) {
+    document.getElementById("risultato").innerHTML = `
+      <div class="card rosso">
+        <div class="badge">Errore di rete</div>
+        <p>Controlla la connessione Internet e riprova.</p>
+      </div>`;
   }
 }
 
-function checkManual() {
-  checkBarcode(document.getElementById("barcode").value.trim());
+function controllaManuale() {
+  controllaCodice(document.getElementById("barcode").value);
 }
 
-function startScan() {
-  const scanner = new ZXing.BrowserMultiFormatReader();
-
-  scanner.decodeFromVideoDevice(undefined, "video", (result, error) => {
-    if (result) {
-      scanner.reset();
-      checkBarcode(result.getText());
-    }
-  });
-
-  document.getElementById("result").innerHTML =
-    `<div class="card giallo">
-      <div class="badge">Fotocamera attiva</div>
-      <video id="video" style="width:100%; border-radius:12px;"></video>
-      <p>Inquadra il codice a barre del prodotto.</p>
+function avviaScanner() {
+  document.getElementById("risultato").innerHTML = `
+    <div class="card giallo">
+      <div class="badge">Fotocamera in avvio…</div>
+      <p>Se Safari lo richiede, tocca <b>Consenti</b>.</p>
     </div>`;
+
+  scanner = new Html5Qrcode("reader");
+
+  scanner
+    .start(
+      { facingMode: "environment" },
+      {
+        fps: 10,
+        qrbox: { width: 260, height: 160 }
+      },
+      codice => {
+        fermaScanner();
+        controllaCodice(codice);
+      },
+      errore => {}
+    )
+    .catch(errore => {
+      document.getElementById("risultato").innerHTML = `
+        <div class="card rosso">
+          <div class="badge">Fotocamera non disponibile</div>
+          <p>${errore}</p>
+          <p>Apri la pagina in Safari e consenti l’accesso alla fotocamera.</p>
+        </div>`;
+    });
+}
+
+function fermaScanner() {
+  if (scanner) {
+    scanner.stop().catch(() => {});
+    scanner.clear();
+    scanner = null;
+  }
 }
 </script>
 
