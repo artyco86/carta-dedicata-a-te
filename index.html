@@ -2,556 +2,151 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport"
-      content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="color-scheme" content="light">
-<meta name="theme-color" content="#0b5d3b">
-<title>Carta Dedicata a te</title>
-
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Controllo Carta Dedicata a te</title>
 <style>
-* { box-sizing: border-box; }
-body {
-  margin: 0;
-  padding-bottom: 30px;
-  background: #f2f5f7;
-  color: #17232d;
-  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-}
-header {
-  background: #0b5d3b;
-  color: white;
-  padding: 24px 16px;
-  text-align: center;
-}
-h1 { margin: 0 0 10px; font-size: 27px; }
-h2 { margin: 0 0 12px; font-size: 22px; }
-h3 { margin: 10px 0; }
-p { line-height: 1.5; }
-main { max-width: 620px; margin: auto; padding: 16px; }
-.card {
-  background: white;
-  border-radius: 15px;
-  padding: 17px;
-  margin-bottom: 16px;
-  box-shadow: 0 3px 12px #0000000d;
-}
-button, input, select {
-  width: 100%;
-  font-size: 17px;
-  border-radius: 11px;
-  padding: 14px;
-}
-button {
-  border: 0;
-  background: #0b5d3b;
-  color: white;
-  font-weight: 700;
-  margin-top: 10px;
-}
-button:disabled { opacity: .5; }
-input, select {
-  border: 1px solid #aebac4;
-  background: white;
-  color: #17232d;
-  margin-top: 10px;
-}
-.secondario {
-  background: white;
-  color: #0b5d3b;
-  border: 2px solid #0b5d3b;
-}
-.pericolo { background: #983b32; }
-#anteprima {
-  margin-top: 14px;
-  background: #111;
-  border-radius: 12px;
-  overflow: hidden;
-}
-video {
-  display: block;
-  width: 100%;
-  height: 300px;
-  object-fit: contain;
-}
-small, .dettagli {
-  color: #536170;
-  font-size: 14px;
-  line-height: 1.5;
-  overflow-wrap: anywhere;
-}
-small { display: block; }
-.verde { border-left: 7px solid #21834a; }
-.giallo { border-left: 7px solid #c18b00; }
-.esito { font-size: 19px; font-weight: 800; }
-.verde .esito { color: #176438; }
-.giallo .esito { color: #876000; }
-.voce {
-  padding: 14px;
-  margin-top: 12px;
-  border-radius: 10px;
-  background: #f6f8fa;
-}
-[hidden] { display: none !important; }
+  body { font-family: system-ui, sans-serif; margin: 0; background: #f4f6f8; color: #16202a; }
+  header { background: #0b5d3b; color: white; padding: 18px; text-align: center; }
+  main { padding: 16px; max-width: 520px; margin: auto; }
+  button { width: 100%; padding: 16px; border: 0; border-radius: 12px; font-size: 17px; font-weight: 700; }
+  .scan { background: #0b5d3b; color: white; }
+  .manual { background: white; border: 2px solid #0b5d3b; color: #0b5d3b; margin-top: 10px; }
+  .card { background: white; border-radius: 14px; padding: 16px; margin-top: 16px; box-shadow: 0 2px 10px #0001; }
+  .verde { border-left: 8px solid #1a8f4a; }
+  .rosso { border-left: 8px solid #d0342c; }
+  .giallo { border-left: 8px solid #e0a800; }
+  .badge { font-weight: 800; font-size: 18px; }
+  input { width: 100%; padding: 12px; font-size: 16px; border: 1px solid #ccd4dc; border-radius: 10px; box-sizing: border-box; }
+  small { color: #5a6875; }
 </style>
 </head>
-
 <body>
+
 <header>
   <h1>Carta Dedicata a te</h1>
-  <p>Controllo indicativo dei prodotti</p>
-  <small style="color:white">Versione 1.3 — scanner e storico</small>
+  <p>Scansiona il prodotto e verifica se è probabilmente ammesso</p>
 </header>
 
 <main>
-  <section class="card">
-    <button id="avvia">Avvia scanner</button>
+  <button class="scan" onclick="startScan()">📷 Scansiona codice a barre</button>
 
-    <div id="anteprima" hidden>
-      <video id="video" autoplay muted playsinline></video>
-    </div>
+  <div class="card">
+    <label><b>Inserisci codice a barre manualmente</b></label>
+    <input id="barcode" inputmode="numeric" placeholder="Es. 8000500310427">
+    <button class="manual" onclick="checkManual()">Verifica prodotto</button>
+  </div>
 
-    <div id="controlli" hidden>
-      <label for="fotocamera">Fotocamera</label>
-      <select id="fotocamera"></select>
-      <button id="cambia" class="secondario">
-        Usa fotocamera selezionata
-      </button>
-    </div>
+  <div id="result"></div>
 
-    <button id="ferma" class="secondario" hidden>
-      Ferma scanner
-    </button>
-
-    <p id="stato" class="dettagli" aria-live="polite">
-      Premi Avvia scanner.
-    </p>
-
+  <div class="card">
     <small>
-      Inquadra tutto il codice, incluse le estremità.
-      Se l’immagine è sfocata, allontana lentamente il prodotto
-      oppure prova un’altra fotocamera.
+      L’esito è indicativo: la Carta “Dedicata a te” è riservata ai generi alimentari di prima necessità.
+      Sono esclusi alcolici, detersivi, cosmetici, prodotti per l’igiene e articoli non alimentari.
+      La conferma definitiva avviene in cassa.
     </small>
-  </section>
-
-  <section class="card">
-    <form id="modulo">
-      <label for="barcode">Codice a barre manuale</label>
-      <input id="barcode" type="text" inputmode="numeric"
-             autocomplete="off" placeholder="Inserisci codice EAN"
-             required>
-      <button id="verifica" class="secondario">
-        Verifica prodotto
-      </button>
-    </form>
-  </section>
-
-  <div id="risultato" aria-live="polite"></div>
-
-  <section class="card">
-    <h2>Storico ricerche</h2>
-    <small>
-      Ultime 200 ricerche, salvate in questo browser.
-      Data e ora del dispositivo.
-    </small>
-    <p id="avviso" class="dettagli"></p>
-    <div id="storico"></div>
-    <button id="cancella" class="pericolo">
-      Cancella storico
-    </button>
-  </section>
-
-  <section class="card">
-    <small>
-      App non ufficiale. I risultati sono stime, non certificazioni
-      di ammissibilità. Nome e categorie possono essere incompleti.
-      Verifica i casi dubbi con il punto vendita.
-      Dati prodotto: Open Food Facts.
-      Lo storico non è sincronizzato e può andare perso cancellando
-      i dati del sito.
-    </small>
-  </section>
+  </div>
 </main>
 
 <script src="https://unpkg.com/@zxing/library@0.21.3/umd/index.min.js"></script>
-
 <script>
-"use strict";
+const GREEN = [
+  "pane","pasta","riso","cereali","farina","latte","formaggio","yogurt","uova",
+  "frutta","verdura","ortaggi","legumi","carne","pollo","manzo","maiale","pesce",
+  "tonno","olio","burro","acqua","caffè","te","tè","camomilla","zucchero","miele",
+  "cioccolato","cacao","biscotti","conserve","pomodoro","surgelati","baby","infanzia"
+];
 
-const $ = id => document.getElementById(id);
-const CHIAVE = "carta_dedicata_storico_v1";
+const RED = [
+  "birra","vino","vodka","whisky","rum","liquore","alcol","detersivo","detersivi",
+  "candeggina","ammorbidente","sapone","shampoo","dentifricio","spazzolino",
+  "cosmetico","cosmetici","carta igienica","fazzoletti","pannolini","sigarette",
+  "carburante","benzina","gas","riviste","giornali","animali","crocchette cane"
+];
 
-let lettore = null;
-let sessione = 0;
-let avvioInCorso = false;
-let ricercaInCorso = false;
-let letto = false;
-let storico = [];
+function verdict(text) {
+  const t = text.toLowerCase();
 
-try {
-  const dati = JSON.parse(localStorage.getItem(CHIAVE) || "[]");
-  if (Array.isArray(dati)) {
-    storico = dati.filter(v =>
-      v && typeof v.codice === "string" &&
-      typeof v.nome === "string" &&
-      typeof v.data === "string"
-    ).slice(0, 200);
-  }
-} catch (e) {
-  $("avviso").textContent = "Impossibile leggere lo storico salvato.";
-}
-
-function salva() {
-  try {
-    localStorage.setItem(CHIAVE, JSON.stringify(storico));
-  } catch (e) {
-    $("avviso").textContent =
-      "Storico non salvato: memoria o salvataggio non disponibili.";
-  }
-}
-
-function nodo(tag, testo, classe) {
-  const n = document.createElement(tag);
-  if (testo !== undefined) n.textContent = testo;
-  if (classe) n.className = classe;
-  return n;
-}
-
-function normalizza(testo) {
-  return String(testo || "").toLowerCase()
-    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^a-z0-9]+/g, " ").trim();
-}
-
-function contiene(testo, parola) {
-  return (" " + normalizza(testo) + " ")
-    .includes(" " + normalizza(parola) + " ");
-}
-
-function valuta(p) {
-  const testo = [
-    p.product_name_it || p.product_name || "",
-    p.categories || "",
-    ...(Array.isArray(p.categories_tags) ? p.categories_tags : [])
-  ].join(" ");
-
-  const esclusioni = [
-    "bevande alcoliche", "alcoholic beverages",
-    "birra", "beer", "beers", "vino", "wine", "wines",
-    "rum", "gin", "vodka", "whisky", "whiskey",
-    "grappa", "liquore", "liquori", "liqueur",
-    "detersivo", "detersivi", "detergent",
-    "candeggina", "ammorbidente", "shampoo",
-    "dentifricio", "sapone", "cosmetici",
-    "carta igienica", "pannolini"
-  ];
-
-  const sospetto = esclusioni.find(x => contiene(testo, x));
-
-  if (sospetto) {
-    return {
-      stato: "giallo",
-      titolo: "Possibile esclusione: da verificare",
-      motivo: 'Rilevata la parola "' + sospetto +
-        '". Potrebbe riferirsi al prodotto o a un ingrediente. ' +
-        "Il testo non basta per una conclusione certa."
-    };
+  if (RED.some(word => t.includes(word))) {
+    return { status: "rosso", label: "Probabilmente NON acquistabile", reason: "Categoria esclusa dalla Carta Dedicata a te." };
   }
 
-  const alimenti = [
-    "pasta", "pastas", "paste alimentari", "farfalle",
-    "spaghetti", "penne", "fusilli", "rigatoni",
-    "riso", "rice", "pane", "bread", "farina", "flour",
-    "latte", "milk", "uova", "eggs",
-    "legumi", "legumes", "pulses",
-    "frutta", "fruits", "verdura", "vegetables",
-    "carne", "meat", "pesce", "fish",
-    "olio di oliva", "olive oil"
-  ];
+  if (GREEN.some(word => t.includes(word))) {
+    return { status: "verde", label: "Probabilmente acquistabile", reason: "Rientra nelle categorie alimentari di prima necessità." };
+  }
 
-  const alimento = alimenti.find(x => contiene(testo, x));
-
-  return alimento ? {
-    stato: "verde",
-    titolo: "Probabilmente acquistabile",
-    motivo: 'Rilevato alimento compatibile: "' + alimento +
-      '". Valutazione indicativa, non ufficiale.'
-  } : {
-    stato: "giallo",
-    titolo: "Da verificare",
-    motivo: "Informazioni insufficienti per valutare l’ammissibilità."
+  return {
+    status: "giallo",
+    label: "Da verificare in cassa",
+    reason: "Il prodotto è alimentare, ma la categoria non è stata riconosciuta con certezza."
   };
 }
 
-function scheda(v, ridotta) {
-  const colore = v.stato === "verde" ? "verde" : "giallo";
-  const box = nodo("article", undefined,
-    (ridotta ? "voce " : "card ") + colore);
+function showResult(product, code) {
+  const name = product?.product_name || product?.product_name_it || "Prodotto non identificato";
+  const categories = product?.categories || product?.categories_tags?.join(", ") || "";
+  const text = name + " " + categories;
+  const v = verdict(text);
 
-  const data = new Date(v.data);
-  box.append(
-    nodo("div", v.titolo || "Da verificare", "esito"),
-    nodo("h3", v.nome),
-    nodo("p", "Ricerca: " +
-      (isNaN(data.getTime()) ? "Data non disponibile" :
-        data.toLocaleString("it-IT")), "dettagli"),
-    nodo("p", "Codice: " + v.codice, "dettagli")
-  );
-
-  if (!ridotta) {
-    box.append(nodo("p", "Categorie: " +
-      (v.categorie || "Non disponibili"), "dettagli"));
-  }
-
-  box.append(nodo("p", v.motivo || "", "dettagli"));
-
-  if (ridotta) {
-    const b = nodo("button", "Ricontrolla", "secondario");
-    b.onclick = () => cerca(v.codice);
-    box.append(b);
-  }
-  return box;
+  document.getElementById("result").innerHTML = `
+    <div class="card ${v.status}">
+      <div class="badge">${v.label}</div>
+      <h3>${name}</h3>
+      <p><b>Codice:</b> ${code}</p>
+      <p><b>Categoria rilevata:</b> ${categories || "non disponibile"}</p>
+      <p>${v.reason}</p>
+    </div>`;
 }
 
-function mostraStorico() {
-  $("storico").replaceChildren();
-  if (!storico.length) {
-    $("storico").append(nodo("p", "Nessuna ricerca.", "dettagli"));
-  }
-  storico.forEach(v => $("storico").append(scheda(v, true)));
-  $("cancella").disabled = !storico.length;
-}
+async function checkBarcode(code) {
+  if (!code) return;
 
-function messaggio(titolo, testo) {
-  const box = nodo("section", undefined, "card giallo");
-  box.append(nodo("div", titolo, "esito"), nodo("p", testo));
-  $("risultato").replaceChildren(box);
-}
-
-function aggiornaPulsanti() {
-  $("avvia").disabled =
-    avvioInCorso || ricercaInCorso || !!lettore;
-  $("cambia").disabled = avvioInCorso || ricercaInCorso;
-  $("verifica").disabled = ricercaInCorso;
-}
-
-function arresta() {
-  sessione++;
-  const vecchio = lettore;
-  lettore = null;
-
-  if (vecchio) {
-    try { vecchio.reset(); } catch (e) {}
-  }
-
-  const video = $("video");
-  const stream = video.srcObject;
-  if (stream && stream.getTracks) {
-    stream.getTracks().forEach(t => t.stop());
-  }
-  video.srcObject = null;
-
-  $("anteprima").hidden = true;
-  $("ferma").hidden = true;
-  aggiornaPulsanti();
-}
-
-async function aggiornaFotocamere(idSessione) {
-  try {
-    const dispositivi = await navigator.mediaDevices.enumerateDevices();
-    if (idSessione !== sessione) return;
-
-    const camere = dispositivi.filter(d => d.kind === "videoinput");
-    const traccia = $("video").srcObject?.getVideoTracks()[0];
-    const attiva = traccia?.getSettings().deviceId;
-
-    $("fotocamera").replaceChildren();
-
-    camere.forEach((camera, i) => {
-      const opzione = nodo(
-        "option", camera.label || "Fotocamera " + (i + 1)
-      );
-      opzione.value = camera.deviceId;
-      $("fotocamera").append(opzione);
-    });
-
-    if (attiva) $("fotocamera").value = attiva;
-    $("controlli").hidden = camere.length < 2;
-  } catch (e) {
-    $("controlli").hidden = true;
-  }
-}
-
-async function avvia(deviceId) {
-  if (avvioInCorso || ricercaInCorso) return;
-
-  if (!window.ZXing) {
-    $("stato").textContent =
-      "Libreria scanner non caricata. Ricarica la pagina.";
-    return;
-  }
-
-  arresta();
-  avvioInCorso = true;
-  letto = false;
-  const idSessione = sessione;
-
-  $("anteprima").hidden = false;
-  $("ferma").hidden = false;
-  $("stato").textContent = "Avvio fotocamera…";
-  aggiornaPulsanti();
-
-  const corrente = new ZXing.BrowserMultiFormatReader();
-  lettore = corrente;
-
-  const vincoli = {
-    audio: false,
-    video: {
-      ...(deviceId
-        ? { deviceId: { exact: deviceId } }
-        : { facingMode: { ideal: "environment" } }),
-      width: { ideal: 1920 },
-      height: { ideal: 1080 }
-    }
-  };
+  document.getElementById("result").innerHTML =
+    `<div class="card giallo"><div class="badge">Ricerca in corso…</div></div>`;
 
   try {
-    await corrente.decodeFromConstraints(
-      vincoli,
-      $("video"),
-      risultato => {
-        if (!risultato || letto || idSessione !== sessione) return;
-        letto = true;
-        const codice = risultato.getText();
-
-        // Arresta fuori dal callback di decodifica.
-        setTimeout(() => {
-          if (idSessione !== sessione) return;
-          $("stato").textContent = "Codice letto: " + codice;
-          cerca(codice);
-        }, 0);
-      }
+    const response = await fetch(
+      `https://world.openfoodfacts.org/api/v2/product/${code}.json?fields=product_name,product_name_it,categories,categories_tags`
     );
+    const data = await response.json();
 
-    if (idSessione !== sessione) {
-      try { corrente.reset(); } catch (e) {}
-      return;
-    }
-
-    $("stato").textContent =
-      "Scanner attivo. Inquadra il codice a barre.";
-    await aggiornaFotocamere(idSessione);
-
-  } catch (e) {
-    if (idSessione === sessione) {
-      arresta();
-      $("stato").textContent =
-        "Avvio non riuscito: " + (e.name || "Errore") +
-        ". Verifica il permesso della fotocamera in Safari.";
-    }
-  } finally {
-    avvioInCorso = false;
-    aggiornaPulsanti();
-  }
-}
-
-async function cerca(valore) {
-  if (ricercaInCorso) return;
-  const codice = String(valore || "").replace(/\s+/g, "");
-
-  if (!/^\d{8,14}$/.test(codice)) {
-    messaggio("Codice non valido", "Inserisci da 8 a 14 cifre.");
-    return;
-  }
-
-  arresta();
-  ricercaInCorso = true;
-  aggiornaPulsanti();
-  $("barcode").value = codice;
-  messaggio("Ricerca in corso…", "Attendi il risultato.");
-
-  const data = new Date().toISOString();
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 18000);
-
-  try {
-    const risposta = await fetch(
-      "https://world.openfoodfacts.org/api/v2/product/" +
-      encodeURIComponent(codice) +
-      ".json?fields=product_name,product_name_it,categories,categories_tags",
-      { signal: controller.signal }
-    );
-
-    if (!risposta.ok) throw new Error("HTTP " + risposta.status);
-    const dati = await risposta.json();
-    let voce;
-
-    if (dati.status === 1 && dati.product) {
-      const p = dati.product;
-      voce = {
-        codice, data,
-        nome: p.product_name_it || p.product_name || "Prodotto senza nome",
-        categorie: p.categories ||
-          (Array.isArray(p.categories_tags)
-            ? p.categories_tags.join(", ") : ""),
-        ...valuta(p)
-      };
+    if (data.status === 1) {
+      showResult(data.product, code);
     } else {
-      voce = {
-        codice, data,
-        nome: "Prodotto non trovato",
-        categorie: "",
-        stato: "giallo",
-        titolo: "Compatibilità non determinabile",
-        motivo: "Codice non presente nel database. " +
-          "Questo non significa che il prodotto sia escluso."
-      };
+      document.getElementById("result").innerHTML =
+        `<div class="card giallo">
+          <div class="badge">Prodotto non trovato</div>
+          <p>Il codice ${code} non è presente nel database Open Food Facts.</p>
+          <p>Prova a inserire il nome del prodotto manualmente o verifica in cassa.</p>
+        </div>`;
     }
-
-    storico.unshift(voce);
-    storico = storico.slice(0, 200);
-    salva();
-    mostraStorico();
-    $("risultato").replaceChildren(scheda(voce, false));
-
-  } catch (e) {
-    messaggio(
-      "Ricerca non completata",
-      e.name === "AbortError"
-        ? "Tempo di attesa superato. Riprova."
-        : "Database non raggiungibile. Controlla la connessione e riprova."
-    );
-  } finally {
-    clearTimeout(timer);
-    ricercaInCorso = false;
-    aggiornaPulsanti();
+  } catch (error) {
+    document.getElementById("result").innerHTML =
+      `<div class="card rosso"><div class="badge">Errore di rete</div><p>Controlla la connessione Internet e riprova.</p></div>`;
   }
 }
 
-$("avvia").onclick = () => avvia();
-$("cambia").onclick = () => avvia($("fotocamera").value);
+function checkManual() {
+  checkBarcode(document.getElementById("barcode").value.trim());
+}
 
-$("ferma").onclick = () => {
-  arresta();
-  $("stato").textContent = "Scanner fermato.";
-};
+function startScan() {
+  const scanner = new ZXing.BrowserMultiFormatReader();
 
-$("modulo").onsubmit = e => {
-  e.preventDefault();
-  cerca($("barcode").value);
-};
+  scanner.decodeFromVideoDevice(undefined, "video", (result, error) => {
+    if (result) {
+      scanner.reset();
+      checkBarcode(result.getText());
+    }
+  });
 
-$("cancella").onclick = () => {
-  if (!confirm("Cancellare tutto lo storico?")) return;
-  storico = [];
-  salva();
-  mostraStorico();
-};
-
-document.addEventListener("visibilitychange", () => {
-  if (document.hidden) arresta();
-});
-
-mostraStorico();
+  document.getElementById("result").innerHTML =
+    `<div class="card giallo">
+      <div class="badge">Fotocamera attiva</div>
+      <video id="video" style="width:100%; border-radius:12px;"></video>
+      <p>Inquadra il codice a barre del prodotto.</p>
+    </div>`;
+}
 </script>
+
 </body>
 </html>
